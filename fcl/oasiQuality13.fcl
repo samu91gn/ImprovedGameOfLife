@@ -1,0 +1,87 @@
+
+
+FUNCTION_BLOCK oasiQuality	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT				
+	agentDensity: REAL;
+	resourceDensity : REAL;
+	distance: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT				
+	oasiQuality : REAL;
+END_VAR
+
+// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
+FUZZIFY agentDensity			
+	TERM low:= (0, 1) (0.1,1) (0.3, 0); 
+	TERM medium:=(0.1,0)(0.3,1)(0.45,1)(0.6,0);
+	TERM  high:= (0.45, 0) (0.7,1)(1, 1);
+END_FUZZIFY
+
+// Fuzzify input variable 'food': { 'rancid', 'delicious' }
+FUZZIFY resourceDensity			
+	TERM low:= (0, 1)(37,0); 
+	TERM medium:=(20,0)(37,1)(48,0);
+	TERM  high:= (40,0) (60, 1);
+	
+END_FUZZIFY
+
+FUZZIFY distance
+
+	TERM low:= (0,1) (130,0);//trape 0 2 3 4;// 
+	TERM medium:=(35,0)(180,1)(300,0);
+	TERM  high:= (220,0)(350,1)(400,1);
+
+
+END_FUZZIFY
+
+
+// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
+DEFUZZIFY oasiQuality 			
+	TERM insoddisfacente := (0,1) (5,1)  (40,0);
+	TERM soddisfacente := (20,0) (50,1) (80,0);
+	TERM moltoSoddisfacente := (60,0)(95,1) (100,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+// Inference rules
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and' (congiunzione
+	ACT : MIN;	// Use 'min' activation method (implicazione)
+	ACCU : MAX;	// Use 'max' accumulation method (aggregazione)
+/*RULE 1:  IF (distance IS high AND resourceDensity IS low AND agentDensity IS high)OR(distance IS high AND resourceDensity IS low AND agentDensity IS medium) THEN oasiQuality IS insoddisfacente;
+RULE 2:  IF (distance IS high AND resourceDensity IS low AND agentDensity IS low)OR(distance IS high AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS high AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS low)OR(distance IS low AND resourceDensity IS low AND agentDensity IS high) THEN oasiQuality IS pocoSoddisfacente;
+RULE 3:  IF (distance IS high AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS high AND resourceDensity IS high AND agentDensity IS high)OR(distance IS high AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS low AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS low AND agentDensity IS low)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS high) THEN oasiQuality IS soddisfacente;
+RULE 4:  IF (distance IS high AND resourceDensity IS high AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS low)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS low AND resourceDensity IS high AND agentDensity IS high) THEN oasiQuality IS abbondantementeSoddisfacente;
+RULE 5:  IF (distance IS low AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS high AND agentDensity IS low) THEN oasiQuality IS moltoSoddisfacente;
+*/
+
+/*RULE 1: IF (distance IS high AND resourceDensity IS low) THEN oasiQuality IS insoddisfacente;
+RULE 2:  IF (distance IS high AND resourceDensity IS medium) THEN oasiQuality IS insoddisfacente;
+RULE 3: IF (distance IS high AND resourceDensity IS high) THEN oasiQuality IS pocoSoddisfacente;
+RULE 4: IF (distance IS medium AND resourceDensity IS low) THEN oasiQuality IS insoddisfacente;
+RULE 5: IF (distance IS medium AND resourceDensity IS medium) THEN oasiQuality IS soddisfacente;
+RULE 6: IF (distance IS medium AND resourceDensity IS high) THEN oasiQuality IS soddisfacente;
+RULE 7: IF (distance IS low AND resourceDensity IS low) THEN oasiQuality IS pocoSoddisfacente;
+RULE 8: IF (distance IS low AND resourceDensity IS medium) THEN oasiQuality IS soddisfacente;
+RULE 9: IF (distance IS low AND resourceDensity IS high) THEN oasiQuality IS moltoSoddisfacente;
+*/
+/* 
+RULE 10:  IF (distance IS high AND resourceDensity IS low AND agentDensity IS high)OR(distance IS high AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS high AND resourceDensity IS low AND agentDensity IS low) THEN oasiQuality IS insoddisfacente;
+RULE 2:  IF (distance IS high AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS high AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS high AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS low) THEN oasiQuality IS pocoSoddisfacente;
+RULE 3:  IF (distance IS high AND resourceDensity IS high AND agentDensity IS high)OR(distance IS high AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS high AND resourceDensity IS high AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS low AND resourceDensity IS low AND agentDensity IS high)OR(distance IS low AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS low AND agentDensity IS low) THEN oasiQuality IS soddisfacente;
+RULE 4:  IF (distance IS medium AND resourceDensity IS high AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS low)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS low) THEN oasiQuality IS abbondantementeSoddisfacente;
+RULE 5:  IF (distance IS low AND resourceDensity IS high AND agentDensity IS high)OR(distance IS low AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS high AND agentDensity IS low) THEN oasiQuality IS moltoSoddisfacente;
+*/
+RULE 1:  IF (distance IS high AND resourceDensity IS low AND agentDensity IS high)OR(distance IS high AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS high AND resourceDensity IS low AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS high) THEN oasiQuality IS insoddisfacente;
+RULE 2:  IF (distance IS high AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS high AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS high AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS high AND resourceDensity IS high AND agentDensity IS high)OR(distance IS high AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS high AND resourceDensity IS high AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS low AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS high)OR(distance IS low AND resourceDensity IS low AND agentDensity IS high)OR(distance IS low AND resourceDensity IS low AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS low AND agentDensity IS low)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS high)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS medium) THEN oasiQuality IS soddisfacente;
+RULE 3:  IF (distance IS medium AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS medium AND resourceDensity IS high AND agentDensity IS low)OR(distance IS low AND resourceDensity IS medium AND agentDensity IS low)OR(distance IS low AND resourceDensity IS high AND agentDensity IS high)OR(distance IS low AND resourceDensity IS high AND agentDensity IS medium)OR(distance IS low AND resourceDensity IS high AND agentDensity IS low) THEN oasiQuality IS moltoSoddisfacente;
+
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
